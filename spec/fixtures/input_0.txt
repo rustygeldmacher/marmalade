@@ -1,0 +1,11 @@
+3
+1 2
+foo
+bar
+9 4
+a
+b
+c
+d
+3 1
+hello world
