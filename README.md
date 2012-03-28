@@ -1,6 +1,6 @@
 # Marmalade
 
-A Ruby library for helping with the rote, boring part of Google Code Jam puzzles, letting you focus on solving the problem instead of setting up the scaffolding.
+A Ruby library for helping with the boring, mechanical part of Google Code Jam puzzles, letting you focus on solving the problem instead of setting up the scaffolding.
 
 Most Code Jam input files look like something like this:
 
@@ -32,7 +32,7 @@ Once you create a Ruby file for solving a Code Jam puzzle, simply require the Ma
    
 Make the file executable and Marmalade is ready to do the dirty work for you. Say we have an input file like the one described above. The first number in each test case is called `k` and the second is `n`, which is the number of `lines` to read in for each puzzle. Assuming we have a method called `solve_case` that returns the result we're looking for, we can instruct Marmalade to read that for us like so:
 
-    Marmalade.jam do
+    Marmalade.jam(:file => 'input.txt') do
       read :num_cases, :type => :int
       test_cases do
         read [:k, :n], :type => :int
