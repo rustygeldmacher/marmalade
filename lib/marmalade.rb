@@ -1,6 +1,7 @@
 require 'rubygems'
 require 'trollop'
 
+require 'marmalade/project_builder'
 require 'marmalade/file_reader'
 require 'marmalade/puzzle'
 require 'marmalade/version'

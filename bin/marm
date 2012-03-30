@@ -1,0 +1,14 @@
+#!/usr/bin/env ruby
+# TODO: Make this compatible on windows somehow
+
+require 'rubygems'
+require 'marmalade'
+
+project_name = ARGV[0]
+if project_name == '' || project_name.nil?
+  puts "Must supply a project name"
+  exit 1
+end
+
+project_builder = ProjectBuilder.new
+project_builder.create(project_name)

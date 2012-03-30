@@ -1,0 +1,27 @@
+require 'rubygems'
+require 'rake'
+
+begin
+  require 'rspec'
+  require 'rspec/core/rake_task'
+
+  desc 'Default: run the specs'
+  task :default => 'spec'
+
+  desc "Run specs"
+  RSpec::Core::RakeTask.new('spec') do |t|
+    t.pattern = '*_spec.rb'
+  end
+rescue LoadError
+  # Nothing to see here...
+end
+
+desc "Package up source code"
+task :package do |t|
+   # TODO: Make this Windows-friendly
+   project_name = `basename $(pwd)`.chomp
+   system "mkdir #{project_name}"
+   system "cp #{project_name}.rb #{project_name}"
+   system "tar czvf #{project_name}.tgz #{project_name}"
+   system "rm -rf #{project_name}"
+end
