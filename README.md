@@ -52,7 +52,7 @@ And you want to process that as an array, you can use the `:split` argument to `
 
     read :letters, :split => true
     
-The result would be an instance variable `@letters` with will be the array `['A', 'B', 'C', 'D', 'E']`. Similarly, if the line were a series of number like this:
+The result would be an instance variable `@letters` which will be the array `['A', 'B', 'C', 'D', 'E']`. Similarly, if the line were a series of number like this:
 
     1 2 3 4 5 6 7
 
@@ -61,6 +61,18 @@ You can combine `:split` with `:type`:
     read :numbers, :split => true, :type => :int
     
 The `@numbers` instance variable would then contain the array `[1, 2, 3, 4, 5, 6, 7]`.
+
+Finally, here is how you'd read multiple lines of integer arrays:
+
+    read :matrix, :count => 3, :split => true, :type => :int
+    
+If you had an input file that looks like this:
+
+    1 2 3
+    4 5 6
+    7 8 9
+    
+Then the `@matrix` instance variable will be an array of arrays: `[[1, 2, 3], [4, 5, 6], [7, 8, 9]]`.
 
 ## Debugging
 
