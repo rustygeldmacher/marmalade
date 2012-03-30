@@ -1,3 +1,8 @@
+# TODO: RDoc this
+# TODO: read_array
+# TODO: read_integer_array
+# TODO: read_values
+
 module Marmalade
   class Puzzle
     attr_accessor :reader
@@ -15,6 +20,10 @@ module Marmalade
       assigns.each do |k, v|
         instance_variable_set("@#{k.to_s}", v)
       end
+    end
+
+    def read_num_cases
+      read :num_cases, :type => :int
     end
 
     def test_cases(options = {}, &block)

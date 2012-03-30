@@ -3,14 +3,25 @@ require 'spec_helper'
 describe Marmalade::Puzzle do
 
   describe "#read" do
+    before do
+      @reader = mock()
+      @puzzle = Marmalade::Puzzle.new(@reader)
+    end
+
     it "will pass the options to the reader and assign instance varialbes based on the results" do
-      reader = mock()
-      reader.expects(:read).with([:foo, :bar], { :a => 1, :b => 2}).returns({:foo => "a", :bar => 2})
-      puzzle = Marmalade::Puzzle.new(reader, :a => 1)
-      puzzle.read([:foo, :bar], :b => 2)
-      puzzle.instance_eval do
+      @reader.expects(:read).with([:foo, :bar], { :a => 1 }).returns({:foo => "a", :bar => 2})
+      @puzzle.read([:foo, :bar], :a => 1)
+      @puzzle.instance_eval do
         @foo.should == 'a'
         @bar.should == 2
+      end
+    end
+
+    it "will read in the number of cases with read_num_cases" do
+      @reader.expects(:read).with(:num_cases, :type => :int).returns({:num_cases => 1234})
+      @puzzle.read_num_cases
+      @puzzle.instance_eval do
+        @num_cases.should == 1234
       end
     end
   end
