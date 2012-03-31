@@ -14,7 +14,9 @@ module Marmalade
     end
 
     def read(assignments, options = {})
-      # TODO: Check if we're in a 'run_case' block, if so throw an error
+      if @running_case
+        raise MarmaladeError.new("Cannot call read while in a run_case block")
+      end
       options = @options.merge(options)
       assigns = reader.read(assignments, options)
       assigns.each do |k, v|
@@ -40,9 +42,11 @@ module Marmalade
     end
 
     def run_case(&block)
+      @running_case = true
       if @options[:case].nil? || @options[:case] == @case_num
         instance_eval(&block)
       end
+      @running_case = false
     end
 
     def puts(*args)

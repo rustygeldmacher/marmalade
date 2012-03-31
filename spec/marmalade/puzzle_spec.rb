@@ -24,6 +24,15 @@ describe Marmalade::Puzzle do
         @num_cases.should == 1234
       end
     end
+
+    it "will raise an error if it is called in a run_case block" do
+      expect do
+        @puzzle.run_case do
+          read :foo
+        end
+      end.to raise_error(MarmaladeError, /Cannot call read while in a run_case block/)
+    end
+
   end
 
   describe "#test_cases" do
@@ -66,21 +75,35 @@ describe Marmalade::Puzzle do
     end
 
     it "will evaluate the given block if no case options are specified" do
+      value = nil
       build_puzzle(3).run_case do
-        'foo'
-      end.should == 'foo'
+        value = 'foo'
+      end
+      value.should == 'foo'
+    end
+
+    it "will set @running_case to true while in the block" do
+      running = false
+      build_puzzle(3).run_case do
+        running = @running_case
+      end
+      running.should be_true
     end
 
     it "will evaluate the block if the given case and the current case match" do
+      value = nil
       build_puzzle(3, :case => 3).run_case do
-        'foo'
-      end.should == 'foo'
+        value = 'foo'
+      end
+      value.should == 'foo'
     end
 
     it "will not evalulate the block if the case numbers don't match" do
+      value = nil
       build_puzzle(3, :case => 4).run_case do
-        'foo'
-      end.should be_nil
+        value = 'foo'
+      end
+      value.should be_nil
     end
   end
 
