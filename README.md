@@ -19,12 +19,31 @@ Install via RubyGems:
 
     $ gem install marmalade
 
+At the moment, the requirements for using it are:
+- A *nix environment
+- Ruby 1.9
+
 ## Basic Usage
 
-Once you create a Ruby file for solving a Code Jam puzzle, simply put `require 'marmalade'` at the top. Make the file executable and Marmalade is ready to do the dirty work for you. Say we have an input file like the one described above. The first number in each test case is called `k` and the second is `n`, which is the number of `lines` to read in for each puzzle. Assuming we have a method called `solve_case` that returns the result we're looking for, we can instruct Marmalade to read that for us like so:
+Once the gem is installed, use the generator to create a project file for you:
 
-    Marmalade.jam(:file => 'input.txt') do
-      read :num_cases, :type => :int
+    $ jam example
+    
+This command will create a directory called "example" under the current directory and will create a file in the directory called "example.rb", which is an executable Ruby file set up for using Marmalade to do the dirty work for you. Running this file with the `--help` options lets you know about a few things it can do out of the box:
+
+    $ cd example
+    $ ./example.rb --help
+    Options:
+      --file, -f <s>:   Input file to read
+         --debug, -d:   Debug mode
+          --step, -s:   Step through each case
+      --case, -c <i>:   Only run the given case
+          --help, -h:   Show this message
+
+Say we have an input file like the one described above in the introduction. The first line of the file declares how many test cases the file contains. The first number in each test case is called `k` and the second is `n`, which is the number of `lines` to read in for each puzzle. Assuming we have a method called `solve_case` that returns the result we're looking for, we can edit example.rb and instruct Marmalade to read that for us like so:
+
+    Marmalade.jam do
+      read_num_cases
       test_cases do
         read [:k, :n], :type => :int
         read :lines, :count => @n
@@ -32,11 +51,23 @@ Once you create a Ruby file for solving a Code Jam puzzle, simply put `require '
       end
     end
 
-Marmalade reads in each line and will assign the values to instance variables that you specify (in this case, `@k`, `@n` and `@lines`). When the result is ready to be printed, Marmalade overrides `puts` to use the proper output format that Code Jam usually requires, much like:
+Assuming our input file is called `sample.txt`, we can now run the puzzle like this:
+
+    $ ./example -f sample.txt
+
+Marmalade reads in each line and will assign the values to the instance variables that you specified (in this case, `@k`, `@n` and `@lines`). When the result is ready to be printed, Marmalade overrides `puts` to use the proper output format that Code Jam usually requires, much like:
 
     Case #1: 12
     Case #2: 55
     # and so on...
+
+## Reading the number of test cases
+
+As shown in the example about the call to `read_num_cases` reads the next line from the file, interpreting it as an integer and assigning it to the `@num_cases` instance variable. It is functionally equivalent to the following call:
+
+    read :num_cases, :type => :int
+
+`@num_cases` is important because it lets the `test_cases` block know how many cases to run. If `@num_cases` has not been assigned by the time `test_cases` is called, then Marmalade will throw an error.
 
 ## Reading strings
 
@@ -76,24 +107,29 @@ Then the `@matrix` instance variable will be an array of arrays: `[[1, 2, 3], [4
 
 ## Debugging
 
-Marmalade gives you a few ways to help you debug as you solve puzzles. Firstly, you can pass `:debug => true` into the `jam` method, which enabled debug mode. As you go along, you can use `puts_dbg` to write debug messages to the console only if debug mode is enabled. This comes in handy when you want to do your final run to generate your submitted output file.
+Marmalade gives you a few ways to help debug as you solve puzzles. Firstly, you can pass `--debug` as a command line argument, which enables debug mode. As you go along, you can use `puts_dbg` to write debug messages to the console only if debug mode is enabled. This comes in handy when you want to do your final run to generate your submitted output file.
 
-Passing `:step => true` into the `jam` method will cause Marmalade to pause for user input between every test case. This is particularly handy when your'e validating your solution to a puzzle and want to follow your debug output as the program runs through test cases.
+Passing the `--step` command line argument will cause Marmalade to pause for user input between every test case. This is particularly handy when you're validating your solution to a puzzle and want to follow your debug output as the program runs through test cases.
 
-Sometimes you hit a tricky test case and want to work on just that case. Passing `:case => X` into `jam` will cause it to only process case X and skip all other cases. However, in order to enable this functionality, you must tell Marmalade which code in your test cases is used to process, rather than read, test data. Taking the example from above, we can enable the use of `:step` like this:
+Sometimes you hit a tricky test case and want to work on just that case. Passing `--case X` will cause it to only process case X and skip all other cases. However, in order to enable this functionality, you must tell Marmalade which code in your test cases is used to process (rather than read) test data. Taking the example from above, we can enable the use of `--case` like this:
 
-    Marmalade.jam(:file => 'input.txt', :case => 5) do
-      read :num_cases, :type => :int
+    Marmalade.jam do
+      read_num_cases
       test_cases do
         read [:k, :n], :type => :int
         read :lines, :count => @n
+        # run_case tells Marmalade that the following code is test case processing code
         run_case do
           puts solve_case(@k, @lines)
         end
       end
     end
 
-By placing the call to `solve_case` in a `run_case` block, Marmalade knows to skip this code if it's looking for a particular case to run. In this example, `solve_case` will only run for case 5.
+By placing the call to `solve_case` in a `run_case` block, Marmalade knows to skip this code if it's looking for a particular case to run. For example, this command:
+
+    $ ./example.rb -f sample.txt --case 5
+
+Will run `solve_case` only for test case 5.
 
 ## Contributing
 
