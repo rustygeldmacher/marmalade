@@ -28,7 +28,7 @@ module Marmalade
 
     def test_cases(options = {}, &block)
       unless @num_cases.is_a?(Fixnum)
-        raise "@num_cases has not been set or is not an integer"
+        raise MarmaladeError.new("@num_cases has not been set or is not an integer")
       end
       options = options.merge(@options)
       1.upto(@num_cases) do |case_num|

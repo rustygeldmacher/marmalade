@@ -18,4 +18,11 @@ describe Marmalade do
                       2 => { :dummy => 9, :lines => ['a', 'b', 'c', 'd'] },
                       3 => { :dummy => 3, :lines => ['hello world'] } }
   end
+
+  it "will throw an error if the input file does not exist" do
+    Marmalade.expects(:puts).with("** Error: Cannot find input file nothing.txt")
+    ran = false
+    Marmalade.jam(:file => 'nothing.txt') { ran = true }
+    ran.should be_false
+  end
 end

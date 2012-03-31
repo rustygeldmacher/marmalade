@@ -45,7 +45,7 @@ describe Marmalade::Puzzle do
     end
 
     it "will raise an error if num_cases hasn't been set" do
-      expect { @puzzle.test_cases }.to raise_error(/has not been set/)
+      expect { @puzzle.test_cases }.to raise_error(MarmaladeError, /has not been set/)
     end
 
     def run_test_cases(options = {})

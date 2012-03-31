@@ -6,14 +6,25 @@ require 'marmalade/file_reader'
 require 'marmalade/puzzle'
 require 'marmalade/version'
 
+# A class to use for throwing error internally.
+class MarmaladeError < Exception; end
+
 module Marmalade
 
   def self.jam(options = {}, &block)
     options = parse_options.merge(options)
-    File.open(options[:file], 'r') do |file|
-      reader = FileReader.new(file)
-      puzzle = Puzzle.new(reader, options)
-      puzzle.instance_eval(&block)
+    begin
+      file_name = options[:file]
+      unless File.exist?(file_name)
+        raise MarmaladeError.new("Cannot find input file #{file_name}")
+      end
+      File.open(options[:file], 'r') do |file|
+        reader = FileReader.new(file)
+        puzzle = Puzzle.new(reader, options)
+        puzzle.instance_eval(&block)
+      end
+    rescue MarmaladeError => e
+      puts "** Error: #{e.message}"
     end
   end
 
