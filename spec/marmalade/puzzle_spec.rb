@@ -27,6 +27,10 @@ describe Marmalade::Puzzle do
   end
 
   describe "#test_cases" do
+    before do
+      @puzzle = Marmalade::Puzzle.new(mock('reader'))
+    end
+
     it "will run through all the test cases" do
       run_test_cases.should == [1, 2, 3]
     end
@@ -40,13 +44,16 @@ describe Marmalade::Puzzle do
       run_test_cases(:step => true)
     end
 
+    it "will raise an error if num_cases hasn't been set" do
+      expect { @puzzle.test_cases }.to raise_error(/has not been set/)
+    end
+
     def run_test_cases(options = {})
-      puzzle = Marmalade::Puzzle.new(mock('reader'))
-      puzzle.instance_eval do
+      @puzzle.instance_eval do
         @num_cases = 3
       end
       case_numbers = []
-      puzzle.test_cases(options) do
+      @puzzle.test_cases(options) do
         case_numbers << @case_num
       end
       case_numbers
@@ -80,7 +87,8 @@ describe Marmalade::Puzzle do
   describe "#puts" do
     it "will print the message along with the current case number" do
       puzzle = build_puzzle(4)
-      puzzle.expects(:print).with("Case #4: ", "hello")
+      puzzle.expects(:print).with("Case #4: ")
+      puzzle.expects(:print).with("hello")
       puzzle.expects(:print).with("\n")
       puzzle.puts("hello")
     end
@@ -89,7 +97,8 @@ describe Marmalade::Puzzle do
   describe "#puts_dbg" do
     it "will print the message with the case number if in debug mode" do
       puzzle = build_puzzle(4, :debug => true)
-      puzzle.expects(:print).with("Case #4: ", "hello")
+      puzzle.expects(:print).with("Case #4: ")
+      puzzle.expects(:print).with("hello")
       puzzle.expects(:print).with("\n")
       puzzle.puts_dbg('hello')
     end

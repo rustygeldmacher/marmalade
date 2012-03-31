@@ -27,7 +27,9 @@ module Marmalade
     end
 
     def test_cases(options = {}, &block)
-      # TODO: Make sure @num_cases is set
+      unless @num_cases.is_a?(Fixnum)
+        raise "@num_cases has not been set or is not an integer"
+      end
       options = options.merge(@options)
       1.upto(@num_cases) do |case_num|
         @case_num = case_num
@@ -54,7 +56,10 @@ module Marmalade
     private
 
     def puts_with_case(*args)
-      print "Case ##{@case_num}: ", *args
+      unless @case_num.nil?
+        print "Case ##{@case_num}: "
+      end
+      print *args
       print "\n"
     end
   end
