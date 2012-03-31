@@ -9,6 +9,8 @@ describe ProjectBuilder do
   before do
     clean_project_dir
     @builder = ProjectBuilder.new
+    # Stub out puts so we don't get any output when we run tests
+    @builder.stubs(:puts)
     Dir.chdir(@@temp_dir) do
       @builder.create(@@proj_name)
     end
