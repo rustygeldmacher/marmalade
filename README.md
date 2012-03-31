@@ -20,6 +20,7 @@ Install via RubyGems:
     $ gem install marmalade
 
 At the moment, the requirements for using it are:
+
 - A *nix environment
 - Ruby 1.9
 
@@ -29,7 +30,7 @@ Once the gem is installed, use the generator to create a project file for you:
 
     $ jam example
     
-This command will create a directory called "example" under the current directory and will create a file in the directory called "example.rb", which is an executable Ruby file set up for using Marmalade to do the dirty work for you. Running this file with the `--help` options lets you know about a few things it can do out of the box:
+This command will create a directory called "example" under the current directory and will create a file in the directory called "example.rb", which is an executable Ruby file set up for using Marmalade to do the dirty work for you. Running this file with the `--help` option lets you know about a few things it can do out of the box:
 
     $ cd example
     $ ./example.rb --help
