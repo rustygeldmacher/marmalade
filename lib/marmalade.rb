@@ -18,7 +18,7 @@ module Marmalade
       unless File.exist?(file_name)
         raise MarmaladeError.new("Cannot find input file #{file_name}")
       end
-      File.open(options[:file], 'r') do |file|
+      File.open(file_name, 'r') do |file|
         reader = FileReader.new(file)
         puzzle = Puzzle.new(reader, options)
         puzzle.instance_eval(&block)
@@ -31,7 +31,7 @@ module Marmalade
   private
 
   def self.parse_options
-    options = Trollop::options do
+    Trollop::options do
       opt :file, "Input file to read", :short => 'f', :type => :string
       opt :debug, "Debug mode", :short => 'd', :default => false
       opt :step, "Step through each case", :short => 's', :default => false
