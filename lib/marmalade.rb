@@ -3,6 +3,7 @@ require 'trollop'
 
 require 'marmalade/project_builder'
 require 'marmalade/file_reader'
+require 'marmalade/test_case'
 require 'marmalade/puzzle'
 require 'marmalade/version'
 

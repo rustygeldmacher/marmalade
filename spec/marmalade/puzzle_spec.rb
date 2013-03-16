@@ -2,13 +2,12 @@ require 'spec_helper'
 
 describe Marmalade::Puzzle do
 
-  describe "#read" do
+  describe '#read' do
     before do
       @reader = mock()
       @puzzle = Marmalade::Puzzle.new(@reader)
     end
-
-    it "will pass the options to the reader and assign instance varialbes based on the results" do
+    it "assigns instance variables based on the results from the file reader" do
       @reader.expects(:read).with([:foo, :bar], { :a => 1 }).returns({:foo => "a", :bar => 2})
       @puzzle.read([:foo, :bar], :a => 1)
       @puzzle.instance_eval do
@@ -16,129 +15,116 @@ describe Marmalade::Puzzle do
         @bar.should == 2
       end
     end
+    it 'assigns the instance variables to the current test case if there is one' do
+      @reader.expects(:read).with([:foo, :bar], { :a => 1 }).returns({:foo => "a", :bar => 2})
+      current_case = Object.new
+      @puzzle.instance_variable_set('@current_case', current_case)
+      @puzzle.read([:foo, :bar], :a => 1)
+      current_case.instance_eval do
+        @foo.should == 'a'
+        @bar.should == 2
+      end
+    end
+  end
 
-    it "will read in the number of cases with read_num_cases" do
+  describe '#read_num_cases' do
+    before do
+      @reader = mock()
+      @puzzle = Marmalade::Puzzle.new(@reader)
+    end
+    it "will use the reader to read in the number of cases" do
       @reader.expects(:read).with(:num_cases, :type => :int).returns({:num_cases => 1234})
       @puzzle.read_num_cases
       @puzzle.instance_eval do
         @num_cases.should == 1234
       end
     end
-
-    it "will raise an error if it is called in a run_case block" do
-      expect do
-        @puzzle.run_case do
-          read :foo
-        end
-      end.to raise_error(MarmaladeError, /Cannot call read while in a run_case block/)
-    end
-
   end
 
-  describe "#test_cases" do
+  describe "test_cases and run_case blocks" do
     before do
-      @puzzle = Marmalade::Puzzle.new(mock('reader'))
-    end
-
-    it "will run through all the test cases" do
-      run_test_cases.should == [1, 2, 3]
-    end
-
-    it "will return after the specified case as part of support for run_case" do
-      run_test_cases(:case => 2).should == [1, 2]
-    end
-
-    it "will pause after each case if the :step option is set" do
-      STDIN.expects(:getc).times(3)
-      run_test_cases(:step => true)
-    end
-
-    it "will raise an error if num_cases hasn't been set" do
-      expect { @puzzle.test_cases }.to raise_error(MarmaladeError, /has not been set/)
-    end
-
-    def run_test_cases(options = {})
+      @reader = mock('reader')
+      @puzzle = Marmalade::Puzzle.new(@reader)
       @puzzle.instance_eval do
         @num_cases = 3
       end
-      case_numbers = []
-      @puzzle.test_cases(options) do
-        case_numbers << @case_num
+    end
+
+    it 'sets the options for each TestCase base on its own options' do
+      values = []
+      @puzzle.test_cases :opt1 => :foo, :opt2 => 'bar' do
+        run_case do
+          values << @options
+        end
       end
-      case_numbers
-    end
-  end
-
-  describe "#run_case" do
-    before do
-      @puzzle = Marmalade::Puzzle.new(mock('file_reader'))
-    end
-
-    it "will evaluate the given block if no case options are specified" do
-      value = nil
-      build_puzzle(3).run_case do
-        value = 'foo'
+      values.each do |options|
+        options.should == {:opt1 => :foo, :opt2 => 'bar'}
       end
-      value.should == 'foo'
     end
 
-    it "will set @running_case to true while in the block" do
-      running = false
-      build_puzzle(3).run_case do
-        running = @running_case
+    it 'sets the case_num for each TestCase' do
+      values = []
+      @puzzle.test_cases do
+        run_case do
+          values << case_num
+        end
       end
-      running.should be_true
+      values.should == [1, 2, 3]
     end
 
-    it "will evaluate the block if the given case and the current case match" do
-      value = nil
-      build_puzzle(3, :case => 3).run_case do
-        value = 'foo'
+    it 'sets the debug flag for each test case if debug is set' do
+      @puzzle.instance_eval do
+        @debug = true
       end
-      value.should == 'foo'
-    end
-
-    it "will not evalulate the block if the case numbers don't match" do
-      value = nil
-      build_puzzle(3, :case => 4).run_case do
-        value = 'foo'
+      values = []
+      @puzzle.test_cases do
+        run_case do
+          values << debug
+        end
       end
-      value.should be_nil
-    end
-  end
-
-  describe "#puts" do
-    it "will print the message along with the current case number" do
-      puzzle = build_puzzle(4)
-      puzzle.expects(:print).with("Case #4: ")
-      puzzle.expects(:print).with("hello")
-      puzzle.expects(:print).with("\n")
-      puzzle.puts("hello")
-    end
-  end
-
-  describe "#puts_dbg" do
-    it "will print the message with the case number if in debug mode" do
-      puzzle = build_puzzle(4, :debug => true)
-      puzzle.expects(:print).with("Case #4: ")
-      puzzle.expects(:print).with("hello")
-      puzzle.expects(:print).with("\n")
-      puzzle.puts_dbg('hello')
+      values.should == [true, true, true]
     end
 
-    it "will not print the message if the puzzle isn't in debug mode" do
-      puzzle = build_puzzle(4)
-      puzzle.expects(:print).never
-      puzzle.puts_dbg('hello')
+    it 'sets test case instance variables based on what is read from the file' do
+      @reader.expects(:read).with(:foo, {}).times(3).
+        returns({:foo => :a}, {:foo => :b}, {:foo => :c})
+      values = []
+      @puzzle.test_cases do
+        read :foo
+        run_case do
+          values << @foo
+        end
+      end
+      values.should == [:a, :b, :c]
     end
-  end
 
-  def build_puzzle(case_num, options = {})
-    puzzle = Marmalade::Puzzle.new(mock('file_reader'), options)
-    puzzle.instance_eval do
-      @case_num = case_num
+    it 'only runs the given case if the :case option is set' do
+      values = []
+      @puzzle.test_cases :case => 2 do
+        run_case do
+          values << case_num
+        end
+      end
+      values.should == [2]
     end
-    puzzle
+
+    it "pauses after each case if the :step option is set" do
+      STDIN.expects(:getc).times(3)
+      @puzzle.test_cases :step => true do
+        run_case do
+        end
+      end
+    end
+
+    it "raises an error if num_cases hasn't been set" do
+      @puzzle.instance_eval { @num_cases = nil }
+      expect do
+        @puzzle.test_cases do
+          puts "this won't get called."
+        end
+      end.to raise_error(MarmaladeError, /has not been set/)
+    end
+
   end
 
 end

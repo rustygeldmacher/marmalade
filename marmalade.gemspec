@@ -16,6 +16,7 @@ Gem::Specification.new do |gem|
   gem.version       = Marmalade::VERSION
 
   gem.add_dependency 'trollop', '~>1.16.2'
+  gem.add_dependency 'parallel', '0.6.2'
 
   gem.add_development_dependency 'rspec', '~>2.9.0'
   gem.add_development_dependency 'mocha', '~>0.10.5'

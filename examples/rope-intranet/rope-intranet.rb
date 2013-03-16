@@ -1,25 +1,27 @@
 #!/usr/bin/env ruby
 
-require 'rubygems'
+$LOAD_PATH.unshift(File.expand_path('../../lib'))
 require 'marmalade'
 
-def intersect?(segment_a, segment_b)
-  # They intersect if only one side is higher than the other
-  (segment_a[0] - segment_b[0]) * (segment_a[1] - segment_b[1]) < 0
-end
-
-# Brute force check all wires
-def count_intersections(wires)
-  intersections = 0
-  wires.length.times do
-    wire = wires.pop
-    puts_dbg "Wire: #{wire.inspect}"
-    wires.each do |other_wire|
-      puts_dbg "Other wire: #{other_wire.inspect}"
-      intersections += intersect?(wire, other_wire) ? 1 : 0
-    end
+class TestCase
+  def intersect?(segment_a, segment_b)
+    # They intersect if only one side is higher than the other
+    (segment_a[0] - segment_b[0]) * (segment_a[1] - segment_b[1]) < 0
   end
-  intersections
+
+  # Brute force check all wires
+  def count_intersections(wires)
+    intersections = 0
+    wires.length.times do
+      wire = wires.pop
+      puts_dbg "Wire: #{wire.inspect}"
+      wires.each do |other_wire|
+        puts_dbg "Other wire: #{other_wire.inspect}"
+        intersections += intersect?(wire, other_wire) ? 1 : 0
+      end
+    end
+    intersections
+  end
 end
 
 Marmalade.jam do
