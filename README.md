@@ -10,8 +10,8 @@ Most Code Jam input files look like something like this:
     456     # Second line to read
     789     # Third line to read
     9 8     # Start of test case 2
-    
-When beginning a puzzle, wouldn't it be nice to focus on what you need to do to solve it rather than messing with read in the file in the right increments, debugging it, and making sure its doing what you expect? This is where Marmalade comes in. It gives you tools to use in order to quickly get down to the work of solving the actual problem. After all, time is of the essence!
+
+When beginning a puzzle, wouldn't it be nice to focus on what you need to do to solve it rather than messing with reading the file in the right increments, debugging it, and making sure it's doing what you expect? This is where Marmalade comes in. It gives you tools to use in order to quickly get down to the work of solving the actual problem. After all, time is of the essence!
 
 ## Installation
 
@@ -26,11 +26,11 @@ At the moment, the requirements for using it are:
 
 ## Basic Usage
 
-Once the gem is installed, use the generator to create a project file for you:
+Once the gem is installed, use the generator to create yourself a project:
 
     $ jam example
-    
-This command will create a directory called "example" under the current directory and will create a file in the directory called "example.rb", which is an executable Ruby file set up for using Marmalade to do the dirty work for you. Running this file with the `--help` option lets you know about a few things it can do out of the box:
+
+This command will create a directory called `example` under the current directory and will create a file in the directory called `example.rb`, which is an executable Ruby file set up for using Marmalade to do the dirty work for you. Running this file with the `--help` option lets you know about a few things it can do out of the box:
 
     $ cd example
     $ ./example.rb --help
@@ -41,14 +41,16 @@ This command will create a directory called "example" under the current director
       --case, -c <i>:   Only run the given case
           --help, -h:   Show this message
 
-Say we have an input file like the one described above in the introduction. The first line of the file declares how many test cases the file contains. The first number in each test case is called `k` and the second is `n`, which is the number of `lines` to read in for each puzzle. Assuming we have a method called `solve_case` that returns the result we're looking for, we can edit example.rb and instruct Marmalade to read that for us like so:
+Say we have an input file like the one described above. The first line of the file declares how many test cases the file contains. The first number in each test case is called `k` and the second is `n`, which is the number of `lines` to read in for each puzzle. Assuming we have a method called `solve_case` that returns the result we're looking for, we can edit example.rb and instruct Marmalade to read that for us like so:
 
     Marmalade.jam do
       read_num_cases
       test_cases do
         read [:k, :n], :type => :int
         read :lines, :count => @n
-        puts solve_case(@k, @lines)
+        run_case do
+          puts solve_case(@k, @lines)
+        end
       end
     end
 
@@ -64,7 +66,7 @@ Marmalade reads in each line and will assign the values to the instance variable
 
 ## Reading the number of test cases
 
-As shown in the example about the call to `read_num_cases` reads the next line from the file, interpreting it as an integer and assigning it to the `@num_cases` instance variable. It is functionally equivalent to the following call:
+As shown in the example above, the call to `read_num_cases` reads the next line from the file, interpreting it as an integer and assigning it to the `@num_cases` instance variable. It is functionally equivalent to the following call:
 
     read :num_cases, :type => :int
 
@@ -80,10 +82,10 @@ Many times, Code Jam puzzles have lines with multiple values that you want to pr
 
     A B C D E
 
-And you want to process that as an array, you can use the `:split` argument to `read` like so:
+By default, Marmalade will read that line as a single strin. If you'd rather read it as an array, you can use the `:split` argument to `read` like so:
 
     read :letters, :split => true
-    
+
 The result would be an instance variable `@letters` which will be the array `['A', 'B', 'C', 'D', 'E']`. Similarly, if the line were a series of number like this:
 
     1 2 3 4 5 6 7
@@ -91,20 +93,59 @@ The result would be an instance variable `@letters` which will be the array `['A
 You can combine `:split` with `:type`:
 
     read :numbers, :split => true, :type => :int
-    
+
 The `@numbers` instance variable would then contain the array `[1, 2, 3, 4, 5, 6, 7]`.
 
 Finally, here is how you'd read multiple lines of integer arrays:
 
     read :matrix, :count => 3, :split => true, :type => :int
-    
+
 If you had an input file that looks like this:
 
     1 2 3
     4 5 6
     7 8 9
-    
+
 Then the `@matrix` instance variable will be an array of arrays: `[[1, 2, 3], [4, 5, 6], [7, 8, 9]]`.
+
+## Helper methods
+
+There are two ways to define methods that help you organize your solution code. The first is to simple define the method right within the `run_case` block like so:
+
+    Marmalade.jam do
+      read_num_cases
+      test_cases do
+        read :words, :split => true
+        run_case do
+          def solve_case(arr)
+            puts_dbg "array is: #{arr.inspect}"
+            arr.reverse
+          end
+          puts solve_case(@words)
+        end
+      end
+    end
+
+The second (and preferable) way is to open the `TestCase` class and define methods there. Since code within a `run_case` block runs within the context of a `TestCase` instance, all methods defined within that class will be available when running the case.
+
+    class TestCase
+      def solve_case(arr)
+        puts_dbg "array is: #{arr.inspect}"
+        arr.reverse
+      end
+    end
+
+    Marmalade.jam do
+      read_num_cases
+      test_cases do
+        read :words, :split => true
+        run_case do
+          puts solve_case(@words)
+        end
+      end
+    end
+
+Of course, defining methods in the global context of the file itself will work fine, but then they won't have access to the instance variables read from the file, or the modified `puts` or `puts_dbg` methods (see below).
 
 ## Debugging
 
@@ -112,21 +153,7 @@ Marmalade gives you a few ways to help debug as you solve puzzles. Firstly, you 
 
 Passing the `--step` command line argument will cause Marmalade to pause for user input between every test case. This is particularly handy when you're validating your solution to a puzzle and want to follow your debug output as the program runs through test cases.
 
-Sometimes you hit a tricky test case and want to work on just that case. Passing `--case X` will cause it to only process case X and skip all other cases. However, in order to enable this functionality, you must tell Marmalade which code in your test cases is used to process (rather than read) test data. Taking the example from above, we can enable the use of `--case` like this:
-
-    Marmalade.jam do
-      read_num_cases
-      test_cases do
-        read [:k, :n], :type => :int
-        read :lines, :count => @n
-        # run_case tells Marmalade that the following code is test case processing code
-        run_case do
-          puts solve_case(@k, @lines)
-        end
-      end
-    end
-
-By placing the call to `solve_case` in a `run_case` block, Marmalade knows to skip this code if it's looking for a particular case to run. For example, this command:
+Sometimes you hit a tricky test case and want to work on just that case. Passing `--case X` will cause it to only process case X and skip all other cases. However, in order to enable this functionality, you must make sure the work in each case is done in a `run_case` block. For example, this command:
 
     $ ./example.rb -f sample.txt --case 5
 
