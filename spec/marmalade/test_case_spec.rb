@@ -13,29 +13,36 @@ describe TestCase do
   end
 
   describe "#puts" do
-    it 'will print the message along with the current case number' do
-      @test_case.expects(:print).with("Case #4: ")
-      @test_case.expects(:print).with("hello")
-      @test_case.expects(:print).with("\n")
+    it 'will print the message along with the current case number to STDOUT' do
+      STDOUT.expects(:print).with("Case #4: ")
+      STDOUT.expects(:print).with("hello")
+      STDOUT.expects(:print).with("\n")
       @test_case.puts("hello")
+    end
+    it 'will print to the supplied IO buffer if an output option is given' do
+      output = mock()
+      output.expects(:print).with("Case #4: ")
+      output.expects(:print).with("hello")
+      output.expects(:print).with("\n")
+      new_test_case = TestCase.new(4, :output => output)
+      new_test_case.puts("hello")
     end
   end
 
   describe "#puts_dbg" do
     it "will print the message with the case number if in debug mode" do
       @test_case.debug = true
-      @test_case.expects(:print).with("Case #4: ")
-      @test_case.expects(:print).with("hello")
-      @test_case.expects(:print).with("\n")
+      STDOUT.expects(:print).with("Case #4: ")
+      STDOUT.expects(:print).with("hello")
+      STDOUT.expects(:print).with("\n")
       @test_case.puts_dbg('hello')
     end
 
     it "will not print the message if the @test_case isn't in debug mode" do
       @test_case.debug = false
-      @test_case.expects(:print).never
+      STDOUT.expects(:print).never
       @test_case.puts_dbg('hello')
     end
   end
-
 
 end

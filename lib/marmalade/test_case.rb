@@ -5,6 +5,7 @@ class TestCase
 
   def initialize(case_num, options = {})
     self.case_num = case_num
+    @output = options[:output] || STDOUT
     @options = options
   end
 
@@ -26,10 +27,10 @@ class TestCase
 
   def puts_with_case(*args)
     unless case_num.nil?
-      print "Case ##{@case_num}: "
+      @output.print "Case ##{@case_num}: "
     end
-    print *args
-    print "\n"
+    @output.print *args
+    @output.print "\n"
   end
 
 end
