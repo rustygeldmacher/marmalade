@@ -5,9 +5,12 @@ module Marmalade
     attr_accessor :reader
 
     def initialize(file_reader, options = {})
-      @options = options.dup
-      @debug = (@options.delete(:debug) == true)
       self.reader = file_reader
+      @options = options.dup
+      @debug = (@options[:debug] == true)
+      if @options[:processes].to_i > 1 && !@options[:parallel]
+        @options[:parallel] = true
+      end
     end
 
     def read_num_cases
