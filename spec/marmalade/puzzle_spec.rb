@@ -125,6 +125,22 @@ describe Marmalade::Puzzle do
       end.to raise_error(MarmaladeError, /has not been set/)
     end
 
+    context 'when the parallel option is set' do
+      it 'runs the cases in parallel and prints the output in order' do
+        sleep_times = [0.75, 0.25, 0.5]
+        test_output = sequence('test_output')
+        @puzzle.expects(:puts).with("Case #1: hello\n").in_sequence(test_output)
+        @puzzle.expects(:puts).with("Case #2: hello\n").in_sequence(test_output)
+        @puzzle.expects(:puts).with("Case #3: hello\n").in_sequence(test_output)
+        @puzzle.test_cases :parallel => true do
+          run_case do
+            sleep sleep_times[case_num - 1]
+            puts "hello"
+          end
+        end
+      end
+    end
+
   end
 
 end

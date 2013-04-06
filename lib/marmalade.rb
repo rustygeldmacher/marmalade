@@ -1,5 +1,6 @@
 require 'rubygems'
 require 'trollop'
+require 'parallel'
 
 require 'marmalade/project_builder'
 require 'marmalade/file_reader'
@@ -37,6 +38,8 @@ module Marmalade
       opt :debug, "Debug mode", :short => 'd', :default => false
       opt :step, "Step through each case", :short => 's', :default => false
       opt :case, "Only run the given case", :short => 'c', :type => :integer, :default => nil
+      opt :parallel, "Run the cases in parallel processes", :short => 'p', :default => false
+      opt :processes, "Specify the number of processes to use", :type => :integer
     end
   end
 

@@ -24,8 +24,8 @@ describe TestCase do
       output.expects(:print).with("Case #4: ")
       output.expects(:print).with("hello")
       output.expects(:print).with("\n")
-      new_test_case = TestCase.new(4, :output => output)
-      new_test_case.puts("hello")
+      @test_case.output = output
+      @test_case.puts("hello")
     end
   end
 

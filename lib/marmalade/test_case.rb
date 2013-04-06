@@ -1,6 +1,7 @@
 class TestCase
   attr_accessor :case_num
   attr_accessor :debug
+  attr_accessor :output
   attr_accessor :run_block
 
   def initialize(case_num, options = {})

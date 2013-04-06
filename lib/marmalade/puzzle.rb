@@ -1,4 +1,3 @@
-# TODO: RDoc this
 require 'parallel'
 
 module Marmalade
@@ -32,8 +31,10 @@ module Marmalade
         raise MarmaladeError.new("@num_cases has not been set or is not an integer")
       end
       options = options.merge(@options)
-      1.upto(@num_cases).each do |case_num|
 
+      # Set up all test cases and read each one's info from the file
+      test_cases = []
+      1.upto(@num_cases).each do |case_num|
         test_case = TestCase.new(case_num, options)
         test_case.debug = @debug
 
@@ -41,10 +42,44 @@ module Marmalade
         instance_eval(&block)
         @current_case = nil
 
-        if options[:case].nil? || options[:case] == case_num
+        test_cases << test_case
+      end
+
+      # If we are to run in more than one process, we'll run all of the tests without
+      # regard to stepping or finding a single case to run
+      if options[:parallel]
+        # Setup pipes for the output of each test case
+        reader, writer = IO.pipe
+        test_cases.each do |test_case|
+          test_case.output = writer
+        end
+        # Run them
+        processes = options[:processes] || Parallel.processor_count
+        Parallel.each(test_cases, :in_processes => processes) do |test_case|
           test_case.run
-          if options[:step] == true
-            STDIN.getc if options[:step]
+        end
+        # Now output the buffers from each case
+        writer.close
+        outputs = []
+        # TODO: This could probably be done with a stable sort instead...
+        while message = reader.gets
+          match = message.match(/Case #(\d+)/)
+          if match
+            case_num = match[1].to_i
+            case_output = outputs[case_num] ||= []
+            case_output << message
+          else
+            outputs << message
+          end
+        end
+        outputs.flatten.compact.each { |msg| puts msg }
+      else
+        test_cases.each do |test_case|
+          if options[:case].nil? || options[:case] == test_case.case_num
+            test_case.run
+            if options[:step] == true
+              STDIN.getc if options[:step]
+            end
           end
         end
       end
