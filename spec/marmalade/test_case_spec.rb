@@ -14,16 +14,12 @@ describe TestCase do
 
   describe "#puts" do
     it 'will print the message along with the current case number to STDOUT' do
-      STDOUT.expects(:print).with("Case #4: ")
-      STDOUT.expects(:print).with("hello")
-      STDOUT.expects(:print).with("\n")
+      STDOUT.expects(:print).with("Case #4: hello\n")
       @test_case.puts("hello")
     end
     it 'will print to the supplied IO buffer if an output option is given' do
       output = mock()
-      output.expects(:print).with("Case #4: ")
-      output.expects(:print).with("hello")
-      output.expects(:print).with("\n")
+      output.expects(:print).with("Case #4: hello\n")
       @test_case.output = output
       @test_case.puts("hello")
     end
@@ -32,9 +28,7 @@ describe TestCase do
   describe "#puts_dbg" do
     it "will print the message with the case number if in debug mode" do
       @test_case.debug = true
-      STDOUT.expects(:print).with("Case #4: ")
-      STDOUT.expects(:print).with("hello")
-      STDOUT.expects(:print).with("\n")
+      STDOUT.expects(:print).with("Case #4: hello\n")
       @test_case.puts_dbg('hello')
     end
 

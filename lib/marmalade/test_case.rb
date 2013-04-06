@@ -27,11 +27,11 @@ class TestCase
   private
 
   def puts_with_case(*args)
-    unless case_num.nil?
-      @output.print "Case ##{@case_num}: "
+    message = args.map(&:to_s).join("\n") + "\n"
+    unless @case_num.nil?
+      message = "Case ##{@case_num}: #{message}"
     end
-    @output.print *args
-    @output.print "\n"
+    @output.print message
   end
 
 end
