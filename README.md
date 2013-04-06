@@ -32,14 +32,16 @@ Once the gem is installed, use the generator to create yourself a project:
 
 This command will create a directory called `example` under the current directory and will create a file in the directory called `example.rb`, which is an executable Ruby file set up for using Marmalade to do the dirty work for you. Running this file with the `--help` option lets you know about a few things it can do out of the box:
 
-    $ cd example
-    $ ./example.rb --help
-    Options:
-      --file, -f <s>:   Input file to read
-         --debug, -d:   Debug mode
-          --step, -s:   Step through each case
-      --case, -c <i>:   Only run the given case
-          --help, -h:   Show this message
+       $ cd example
+       $ ./example.rb --help
+       Options:
+         --file, -f <s>:   Input file to read
+            --debug, -d:   Debug mode
+             --step, -s:   Step through each case
+         --case, -c <i>:   Only run the given case
+         --parallel, -p:   Run the cases in parallel processes
+    --processes, -r <i>:   Specify the number of processes to use
+             --help, -h:   Show this message
 
 Say we have an input file like the one described above. The first line of the file declares how many test cases the file contains. The first number in each test case is called `k` and the second is `n`, which is the number of `lines` to read in for each puzzle. Assuming we have a method called `solve_case` that returns the result we're looking for, we can edit example.rb and instruct Marmalade to read that for us like so:
 
@@ -63,6 +65,18 @@ Marmalade reads in each line and will assign the values to the instance variable
     Case #1: 12
     Case #2: 55
     # and so on...
+
+## Using multiple cores
+
+Marmalade supports running test cases over multiple CPU cores by running them in parallel processes. In order to run your cases in parallel, supply the `--parallel` command line option to the script. For example:
+
+    ./example.rb -f input_file.txt --parallel
+
+When this option is supplied, Marmalade will use as many processes as there are CPU cores on your machine. To control how many processes are used, supply the `--processes=X` command line option. For instance, to run a test using 4 parallel processes, do the following:
+
+    ./example.rb -f input_file.txt --processes=4
+
+Note that if you supply a processes count, you do not have to also supply the `--parallel` option.
 
 ## Reading the number of test cases
 
@@ -158,6 +172,13 @@ Sometimes you hit a tricky test case and want to work on just that case. Passing
     $ ./example.rb -f sample.txt --case 5
 
 Will run `solve_case` only for test case 5.
+
+## Updating from 0.1 to 0.2
+
+Two things have changed between v0.1 and v0.2 that may break your previous scripts:
+
+* In version 0.1, Marmalade did not require that test case code was contained in a `run_case` block. This is now required.
+* Version 0.1 was able to use globally-scoped helper functions, which is now deprecated. For version 0.2, please open the TestCase class or create helper methods directly in the `run_case` block.
 
 ## Contributing
 
