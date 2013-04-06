@@ -173,12 +173,12 @@ Sometimes you hit a tricky test case and want to work on just that case. Passing
 
 Will run `solve_case` only for test case 5.
 
-## Updating from 0.1 to 0.2
+## Updating from 0.2 to 0.3
 
-Two things have changed between v0.1 and v0.2 that may break your previous scripts:
+Two things have changed between v0.2 and v0.3 that may break your previous scripts:
 
-* In version 0.1, Marmalade did not require that test case code was contained in a `run_case` block. This is now required.
-* Version 0.1 was able to use globally-scoped helper functions, which is now deprecated. For version 0.2, please open the TestCase class or create helper methods directly in the `run_case` block.
+* In version 0.2, Marmalade did not require that test case code was contained in a `run_case` block. This is now required.
+* Version 0.2 was able to use globally-scoped helper functions, which is now deprecated. For version 0.3, please open the TestCase class or create helper methods directly in the `run_case` block.
 
 ## Contributing
 
