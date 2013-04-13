@@ -22,6 +22,11 @@ describe Marmalade::FileReader do
       reader = build_reader("\thello world   ")
       reader.read(:foo).should == { :foo => "hello world" }
     end
+
+    it "will read an empty line as an empty string" do
+      reader = build_reader(nil)
+      reader.read(:empty).should == { :empty => "" }
+    end
   end
 
   context "reading integers" do

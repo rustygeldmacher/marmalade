@@ -22,7 +22,7 @@ module Marmalade
     private
 
     def read_line(file_handle, options)
-      line = file_handle.gets.strip
+      line = (file_handle.gets || '').strip
       integers = [:int, :integer].include?(options[:type])
       if options[:split]
         line_a = line.split(' ')
