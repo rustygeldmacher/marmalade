@@ -37,6 +37,26 @@ describe TestCase do
       STDOUT.expects(:print).never
       @test_case.puts_dbg('hello')
     end
+
+    it "will run and print the value of a block if one is given" do
+      @test_case.debug = true
+      STDOUT.expects(:print).with("Case #4: hello\n")
+      @test_case.puts_dbg do
+        v = 'h'
+        v += 'ello'
+      end
+    end
+
+    it "will not run and print the value of a block if debug is false" do
+      @test_case.debug = false
+      STDOUT.expects(:print).never
+      count = 1
+      @test_case.puts_dbg do
+        count = 9
+        'hello'
+      end
+      count.should == 1
+    end
   end
 
 end

@@ -21,7 +21,13 @@ class TestCase
   end
 
   def puts_dbg(*args)
-    puts_with_case(*args) if debug
+    if debug
+      if block_given?
+        puts_with_case(yield)
+      else
+        puts_with_case(*args)
+      end
+    end
   end
 
   private
